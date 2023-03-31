@@ -6,7 +6,7 @@
 /*   By: ylabrahm <ylabrahm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 21:17:55 by macbook           #+#    #+#             */
-/*   Updated: 2023/03/31 01:29:18 by ylabrahm         ###   ########.fr       */
+/*   Updated: 2023/03/31 02:54:46 by ylabrahm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,6 @@ app.get('/api',
       let _rdm = generateRandomString(16);
       res.cookie("loggin_state", true);
       res.cookie("_rdm", _rdm);
-      // -
       async function set_data() {
         try {
           const database = client.db("db_data");
@@ -109,51 +108,27 @@ app.get('/api',
         }
       }
       set_data();
-      // -
-      res.redirect('./');
+      res.redirect('./dashboard');
     }
     get_me_auth();
-    // res.redirect('/dash/?token=' + token);
   });
 
-// app.get('/api', (req, res) => {
-// var q = url.parse(req.url, true).query;
-// var code = q.code;
-//   res.render("index", { data: code });
-// passport.authenticate('oauth2', { failureRedirect: '/login' }),
-// function (req, res) {
-//     res.redirect('/api/verify?token=' + token);
-// }
-
-// res.cookie("mycookie", "Hello World");
-// res.send("Cookie has been set");
-// const mycookie = req.cookies.mycookie;
-// const x = generateRandomString(16);
-// res.render("dashboard", { data: code });
-// });
-
-app.get("/", (req, res) => {
-  // async function get_data() {
-  //   try {
-  //     const database = client.db("db_data");
-  //     const collection = database.collection("coll_users");
-  //     const data = await collection.find().toArray();
-  //     res.render("index", { data: data });
-  //   } catch {
-  //     res.render("error", { error: "can't connect to db server" });
-  //   }
-  // }
-  // get_data();
+app.get("/login", (req, res) => {
   if (req.cookies._rdm != null) {
     async function get_data() {
       try {
         const database = client.db("db_data");
         const collection = database.collection("coll_users");
         const user_ = await collection.find({ _rdm: req.cookies._rdm }).toArray();
-        res.render("index", {
-          loggin_state: req.cookies.loggin_state,
-          _rdm: req.cookies._rdm
-        });
+        if (user_.length == 0) {
+          res.render("index", {
+            loggin_state: req.cookies.loggin_state,
+            _rdm: req.cookies._rdm
+          });
+        }
+        else {
+          res.redirect('/dashboard');
+        }
       } catch {
         res.redirect("./");
       }
@@ -165,7 +140,11 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get('/login', (req, res) => {
+app.get("/dashboard", (req, res) => {
+  res.render("dashboard");
+});
+
+app.get('/login/auth', (req, res) => {
   async function get_data() {
     try {
       const database = client.db("db_data");
@@ -183,22 +162,4 @@ app.get('/login', (req, res) => {
     }
   }
   get_data();
-  // 
 });
-
-// app.post("/post/add", (req, res) => {
-//   async function send_data() {
-//     try {
-//       const database = client.db("db_data");
-//       const collection = database.collection("coll_users");
-//       const data = await collection.insertOne(req.body);
-//       res.redirect('/');
-//     } catch {
-//       res.render("error", { error: "can't connect to db server" });
-//     }
-//   }
-//   send_data();
-// })
-
-
-
