@@ -6,7 +6,7 @@
 /*   By: ylabrahm <ylabrahm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 21:17:55 by macbook           #+#    #+#             */
-/*   Updated: 2023/03/31 02:54:46 by ylabrahm         ###   ########.fr       */
+/*   Updated: 2023/03/31 20:22:21 by ylabrahm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,8 +141,32 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/dashboard", (req, res) => {
-  res.render("dashboard");
+  async function get_data() {
+    try {
+      const database = client.db("db_data");
+      const collection = database.collection("coll_users");
+      const user_ = await collection.find({ _rdm: req.cookies._rdm }).toArray();
+      if (user_.length == 0) {
+        res.redirect('./');
+      }
+      else {
+        res.render("dashboard");
+      }
+    } catch {
+      res.redirect('./');
+    }
+  }
+  get_data();
 });
+
+app.get("/", (req, res) => {
+  if (req.cookies._rmd == null) {
+    res.redirect("./login");
+  }
+  else {
+    res.redirect("./dashboard");
+  }
+})
 
 app.get('/login/auth', (req, res) => {
   async function get_data() {
@@ -163,3 +187,4 @@ app.get('/login/auth', (req, res) => {
   }
   get_data();
 });
+
