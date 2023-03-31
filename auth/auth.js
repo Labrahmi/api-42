@@ -6,7 +6,7 @@
 /*   By: ylabrahm <ylabrahm@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/28 21:30:34 by ylabrahm          #+#    #+#             */
-/*   Updated: 2023/03/29 00:37:58 by ylabrahm         ###   ########.fr       */
+/*   Updated: 2023/03/30 19:19:22 by ylabrahm         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@ const oauth = require('simple-oauth2');
 const session = require('express-session');
 const axios = require('axios');
 var url = require('url');
-
-
 
 const app = server();
 
