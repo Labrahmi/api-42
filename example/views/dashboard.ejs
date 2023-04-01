@@ -9,34 +9,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
     <style>
+        body {
+            background: url('/assets/wp9127710.png');
+            background-size: cover;
+        }
     </style>
 </head>
 
 <body class="px-4 text-white bg-slate-800">
-    <!-- <nav class="flex justify-between">
-        <a class="text-3xl" href="./"><strong>Logo</strong></a>
-    </nav> -->
     <div class="flex py-2"></div>
     <div style="height: calc(100vh - 8rem);" class="p-4 flex">
         <!--  -->
-        <div class="w-[26rem] py-4 border border-gray-600  bg-gray-800 bg-opacity-70 rounded">
+        <div class="w-[26rem] py-4 border border-gray-600  bg-gray-800 bg-opacity-80 backdrop-blur rounded">
+            <div class="px-8 font-medium text-lg w-full border-b border-gray-600 py-4">
+                Campus:<span class="text-lime-300 px-2">1337 <%= user[0]._campus %></span>
+            </div>
             <div class="py-4 px-2">
-                <ul>
-                    <a href="/dashboard/general" class="flex items-center hover:underline font-bold text-xl p-2">
+                <ul class="font-light">
+                    <a href="/dashboard/general"
+                        class="flex items-center hover:underline  <% if (current_page == 'general') { %> font-extrabold <% } %> text-xl p-2">
                         <box-icon class="fill-white" name='hash'></box-icon>
                         <div class="flex px-0.5"></div>
                         <div href="">general 😍</div>
                     </a>
                     <div class="flex py-2"></div>
                     <!--  -->
-                    <a href="/" class="flex items-center hover:underline font-normal text-xl p-2">
+                    <a href="/dashboard/announcement"
+                        class="flex items-center hover:underline <% if (current_page == 'announcement') { %> font-extrabold <% } %> text-xl p-2">
                         <box-icon class="fill-white" name='hash'></box-icon>
                         <div class="flex px-0.5"></div>
                         <div href="">fake announcement 😝</div>
                     </a>
                     <div class="flex py-2"></div>
                     <!--  -->
-                    <a href="/" class="flex items-center hover:underline font-normal text-xl p-2">
+                    <a href="/dashboard/random"
+                        class="flex items-center hover:underline <% if (current_page == 'random') { %> font-extrabold <% } %> text-xl p-2">
                         <box-icon class="fill-white" name='hash'></box-icon>
                         <div class="flex px-0.5"></div>
                         <div href="">random (Anonymous) 👀</div>
@@ -46,16 +53,18 @@
             </div>
         </div>
         <div class="flex px-3"></div>
-        <div class=" py-4 border bg-gray-700 border-gray-600 overflow-auto rounded w-full">
+        <div class=" py-4 border bg-gray-700 border-gray-600 bg-opacity-70 backdrop-blur overflow-auto rounded w-full">
             <div class="start">
                 <% for(var i=0; i < data.length; i++) { %>
                     <!--  -->
-                    <div class="<% if ((i % 2) == 0) { %> bg-gray-800 <% } %> p-4 flex flex-col justify-between items-start">
+                    <div
+                        class="class_test <% if ((i % 2) == 1) { %> bg-opacity-30 <% } %> bg-gray-800 p-4 flex flex-col justify-between items-start">
                         <div class="border-b border-b-gray-700 pb-1 w-full">
                             <div class="font-medium <%= data[i]._sender_display_color %>">
                                 <%= data[i]._sender_display %>
                             </div>
-                            <div class="p-2 text-gray-300 user_messages <% if (data[i]._dislikes > 5) { %> blur-[3px] opacity-75 <% } %> transition-all duration-150">
+                            <div onload="focos()"
+                                class="p-2 text-gray-300 user_messages <% if (data[i]._dislikes > 5) { %> blur-[3px] opacity-75 <% } %> transition-all duration-150">
                                 <%= data[i]._message %>
                             </div>
                         </div>
@@ -87,16 +96,17 @@
                         </div>
                     </div>
                     <!--  -->
-                <% } %>
+                    <% } %>
             </div>
         </div>
         <!--  -->
     </div>
-    <form class="flex justify-center px-4">
+    <form action="./send_message" method="post" class="flex justify-center px-4">
         <div class=" w-[64rem] flex rounded relative px-4 py-4">
             <input
                 class="w-full p-4 rounded rounded-r-none focus-visible:outline-none bg-slate-900 border border-slate-600 text-white"
-                type="text" name="" id="">
+                type="text" name="_message" id="">
+            <!-- /dashboard/general -->
             <input
                 class="cursor-pointer bg-slate-900  w-32 rounded rounded-l-none text-white outline-none border border-slate-600 transition-all duration-100 hover:bg-slate-800"
                 type="submit" value="Send">
@@ -104,17 +114,23 @@
     </form>
 </body>
 
-<script>
-    let user_messages = document.getElementsByClassName('user_messages');
-    let user_messages_vision = document.getElementsByClassName('user_messages_vision');
-
-    for (let ix = 0; ix < user_messages.length; ix++) {
-        user_messages_vision[ix].addEventListener("click", () => {
-            user_messages[ix].classList.toggle('blur-[3px]');
-            user_messages[ix].classList.toggle('opacity-75');
-        });
-    }
-
-</script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+    
+    <script>
+        let user_messages = document.getElementsByClassName('user_messages');
+        let user_messages_vision = document.getElementsByClassName('user_messages_vision');
+        function focos() {
+            user_messages[user_messages.length].focus();
+        }
+        for (let ix = 0; ix < user_messages.length; ix++) {
+            user_messages_vision[ix].addEventListener("click", () => {
+                user_messages[ix].classList.toggle('blur-[3px]');
+                user_messages[ix].classList.toggle('opacity-75');
+            });
+        }
+    </script>
 
 </html>
