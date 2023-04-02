@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Welcom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <style>
+        body {
+            background: url('/assets/wp9127710.png');
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body class="px-4 text-white bg-slate-800">
+    <div class="flex py-2"></div>
+    <div style="height: calc(100vh - 8rem);" class="p-4 flex">
+        <!--  -->
+        <div class="w-[26rem] py-4 border border-gray-600  bg-gray-800 bg-opacity-80 backdrop-blur rounded">
+            <div class="px-8 font-medium text-lg w-full border-b border-gray-600 py-4">
+                Campus:<span class="text-lime-300 px-2">1337 <%= _campus %></span>
+            </div>
+            <div class="py-4 px-2">
+                <ul class="font-light">
+                    <a href="/dashboard/general" class="flex items-center hover:underline <% if (_current_ch == "general") { %> font-extrabold <% } %> text-xl p-2">
+                        <box-icon class="fill-white" name='hash'></box-icon>
+                        <div class="flex px-0.5"></div>
+                        <div href="">general 😍</div>
+                    </a>
+                    <div class="flex py-2"></div>
+                    <!--  -->
+                    <a href="/dashboard/announcement" class="flex items-center hover:underline <% if (_current_ch == "announcement") { %> font-extrabold <% } %> text-xl p-2">
+                        <box-icon class="fill-white" name='hash'></box-icon>
+                        <div class="flex px-0.5"></div>
+                        <div href="">fake announcement 😝</div>
+                    </a>
+                    <div class="flex py-2"></div>
+                    <!--  -->
+                    <a href="/dashboard/random" class="flex items-center hover:underline <% if (_current_ch == "random") { %> font-extrabold <% } %> text-xl p-2">
+                        <box-icon class="fill-white" name='hash'></box-icon>
+                        <div class="flex px-0.5"></div>
+                        <div href="">random (Anonymous) 👀</div>
+                    </a>
+                    <!--  -->
+                </ul>
+            </div>
+        </div>
+        <div class="flex px-3"></div>
+        <div id="chat_section" class=" py-4 border bg-gray-700 border-gray-600 bg-opacity-70 backdrop-blur overflow-auto rounded w-full">
+            <div id="start">
+                <% for( let index = 0; index < _old_messages.length; index++ ) { %>
+                    <div class="class_test <% if ((index % 2) == 0) { %> bg-gray-800 <% } %> p-4 flex flex-col justify-between items-start">
+                        <div class="border-b border-b-gray-700 pb-1 w-full">
+                            <div class="font-medium <%= _old_messages[index]._sender_display_color %>">
+                                <%= _old_messages[index]._sender_display %>
+                            </div>
+                            <div class="p-2 text-gray-300 user_messages transition-all duration-150">
+                                <%= _old_messages[index]._message %>
+                            </div>
+                        </div>
+                        <div class="flex py-1"></div>
+                        <div class="flex scale-90 select-none">
+                            <div class="flex justify-center items-center">
+                                <a class="flex px-1" href="">
+                                    <box-icon class="fill-white" name='heart'></box-icon>
+                                </a>
+                                <span><%= _old_messages[index]._likes %></span>
+                            </div>
+                            <div class="flex px-2"></div>
+                            <div class="flex justify-center items-center">
+                                <a class="flex px-1" href="">
+                                    <box-icon class="fill-white" name='dislike'></box-icon>
+                                </a>
+                                <span><%= _old_messages[index]._dislikes %></span>
+                            </div>
+                            <div class="flex px-2"></div>
+                            <div class="flex justify-center items-center">
+                                <div class="flex px-1 cursor-pointer user_messages_vision">
+                                    <box-icon class="fill-white" name='low-vision'></box-icon>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        <!--  -->
+    </div>
+    <form id="messages_form" action="./send_message" method="post" class="flex justify-center px-4">
+        <div class=" w-[64rem] flex rounded relative px-4 py-4">
+            <input
+                maxlength="1000"
+                class="w-full p-4 rounded rounded-r-none focus-visible:outline-none bg-slate-900 border border-slate-600 text-white"
+                type="text" name="_message" id="_message">
+            <!-- /dashboard/general -->
+            <input
+                class="cursor-pointer bg-slate-900  w-32 rounded rounded-l-none text-white outline-none border border-slate-600 transition-all duration-100 hover:bg-slate-800"
+                type="submit" value="Send">
+        </div>
+    </form>
+</body>
+
+<script>
+    let user_messages;
+    let user_messages_vision;
+    <!--  -->
+    function flow_ly() {
+        user_messages = document.getElementsByClassName('user_messages');
+        user_messages_vision = document.getElementsByClassName('user_messages_vision');
+        for (let ix = 0; ix < user_messages.length; ix++) {
+            user_messages_vision[ix].addEventListener("click", () => {
+                user_messages[ix].classList.toggle('blur-[3px]');
+                user_messages[ix].classList.toggle('opacity-75');
+            });
+        }
+    }
+    window.addEventListener("load", flow_ly);
+</script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    let _message = document.getElementById('_message');
+    let start = document.getElementById('start');
+    let messages_form = document.getElementById('messages_form');
+    let chat_section = document.getElementById('chat_section');
+    let channel = "";
+    messages_form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        channel = window.location.pathname;
+        if (_message.value.trim() != "") {
+            let objX = {
+                _message: _message.value.trim(),
+                _time: Date(),
+                _rdm: '<%= _rdm %>',
+                _channel: channel,
+            }
+            socket.emit("client" + window.location.pathname, objX);
+            _message.value = "";
+            _message.focus();
+        }
+        flow_ly();
+    });
+    socket.on("server" + window.location.pathname, function (msg) {
+        let _likes = msg._likes;
+        let _dislikes = msg._dislikes;
+        let _sender_display_color = msg._sender_display_color;
+        let my_dsplname = msg._sender_display;
+        let msg_message = msg._message;
+        let bg_message = "";
+        if (user_messages.length % 2 == 0)
+            bg_message = "bg-gray-800";
+        let divHTML = '<div class="class_test ' + bg_message + ' p-4 flex flex-col justify-between items-start"> <div class="border-b border-b-gray-600 pb-1 w-full"> <div class="font-medium ' + _sender_display_color + '"> ' + my_dsplname + ' </div> <div class="p-2 text-gray-300 user_messages transition-all duration-150 overflow-auto"> ' + msg_message + ' </div> </div> <div class="flex py-1"></div> <div class="flex scale-90 select-none"> <div class="flex justify-center items-center"> <a class="flex px-1" href=""> <box-icon class="fill-white" name="heart"></box-icon> </a> <span>' + _likes + '</span> </div> <div class="flex px-2"></div> <div class="flex justify-center items-center"> <a class="flex px-1" href=""> <box-icon class="fill-white" name="dislike"></box-icon> </a> <span>' + _dislikes + '</span> </div> <div class="flex px-2"></div> <div class="flex justify-center items-center"> <div class="flex px-1 cursor-pointer user_messages_vision"> <box-icon class="fill-white" name="low-vision"></box-icon> </div> </div> </div> </div>';
+        let newDiv = document.createElement("div");
+        newDiv.innerHTML = divHTML;
+        start.appendChild(newDiv);
+        chat_section.scrollTo(0, chat_section.scrollHeight);
+        flow_ly();
+    });
+</script>
+
+
+
+</html>
